@@ -33,8 +33,6 @@ class OpenVoiceBaseClass(object):
     def load_ckpt(self, ckpt_path):
         checkpoint_dict = torch.load(ckpt_path, map_location=torch.device(self.device))
         a, b = self.model.load_state_dict(checkpoint_dict["model"], strict=False)
-        print("Loaded checkpoint '{}'".format(ckpt_path))
-        print("missing/unexpected keys:", a, b)
 
 
 class BaseSpeakerTTS(OpenVoiceBaseClass):
@@ -65,9 +63,6 @@ class BaseSpeakerTTS(OpenVoiceBaseClass):
     @staticmethod
     def split_sentences_into_pieces(text, language_str):
         texts = utils.split_sentence(text, language_str=language_str)
-        print(" > Text splitted to sentences.")
-        print("\n".join(texts))
-        print(" > ===========================")
         return texts
 
     def tts(self, text, output_path, speaker, language="English", speed=1.0):
@@ -104,6 +99,7 @@ class BaseSpeakerTTS(OpenVoiceBaseClass):
         audio = self.audio_numpy_concat(
             audio_list, sr=self.hps.data.sampling_rate, speed=speed
         )
+        # soundfile.write(output_path, audio, self.hps.data.sampling_rate)
         # print(
         #     "self.hps.data.sampling_rate --------------------",
         #     self.hps.data.sampling_rate,
@@ -191,11 +187,12 @@ class ToneColorConverter(OpenVoiceBaseClass):
                 .float()
                 .numpy()
             )
-            return self.add_watermark(audio, message)
-            if output_path is None:
-                return audio
-            else:
-                soundfile.write(output_path, audio, hps.data.sampling_rate)
+
+            # soundfile.write(output_path, audio, hps.data.sampling_rate)
+            return audio
+            # if output_path is None:
+            #     return audio
+            # else:
 
     def add_watermark(self, audio, message):
         if self.watermark_model is None:
